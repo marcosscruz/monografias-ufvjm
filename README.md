@@ -1,7 +1,6 @@
 # 📚 Sistema de Monografias - UFVJM
 
-Aplicação web desenvolvida em **Django** para gerenciamento de monografias da UFVJM.  
-O sistema contempla **Alunos, Professores, Administradores** e **Bancas Avaliadoras**.
+Aplicação web desenvolvida em **Django** para gerenciamento de monografias da UFVJM.  O sistema contempla **Alunos, Professores, Administradores** e **Bancas Avaliadoras**.
 
 🚀 Tecnologias Utilizadas:
 - **Linguagem**<br>
@@ -20,7 +19,7 @@ O sistema contempla **Alunos, Professores, Administradores** e **Bancas Avaliado
 ![FontAwesome](https://img.shields.io/badge/Font%20Awesome-339AF0?logo=fontawesome&logoColor=white)<br>
 
 - **Controle de versão** <br>
-![Git](https://img.shields.io/badge/Git-F05032?logo=git&logoColor=white) & ![GitHub](https://img.shields.io/badge/GitHub-181717?logo=github&logoColor=white)
+![Git](https://img.shields.io/badge/Git-F05032?logo=git&logoColor=white) ![GitHub](https://img.shields.io/badge/GitHub-181717?logo=github&logoColor=white)
 
 ---
 
@@ -28,69 +27,89 @@ O sistema contempla **Alunos, Professores, Administradores** e **Bancas Avaliado
 
 ### 🔹 1. Clone o repositório
 
-Instale o Git se não tiver.<br>
-- sudo apt update<br>
-- sudo apt install git<br>
-- git clone https://github.com/gcampolina/Monografias-UFVJM<br>
+Instale o Git se não tiver.
+```
+sudo apt update
+sudo apt install git
+git clone https://github.com/gcampolina/Monografias-UFVJM
+```
 
 ### 🔹 2. Crie o ambiente virtual
-**LINUX:** <br>
-- python3 -m venv venv <br>
-- source venv/bin/activate
+**LINUX:**
+```
+python3 -m venv venv
+source venv/bin/activate
+```
 
-**WINDOWS:** <br>
-- python -m venv venv <br>
-- venv\Scripts\activate
-
+**WINDOWS:**
+```
+python -m venv venv
+venv\Scripts\activate
+```
 
 ### 🔹 3. Ative a Venv e instale as dependências
-**LINUX:** <br>
-- python3 -m venv venv <br>
-- source venv/bin/activate <br>
-- pip install -r requirements.txt
+**LINUX:**
+```
+python3 -m venv venv
+source venv/bin/activate
+cd monografias
+pip install -r requirements.txt
+```
 
-**WINDOWS:**<br>
-- .venv\Scripts\activate<br>
-- pip install -r requirements.txt
+**WINDOWS:**
+```
+.venv\Scripts\activate
+pip install -r requirements.txt
+```
 
-⚠️Lembre-se que o Postgree também precisa ser instalado no SO<br>
-- sudo apt install postgresql postgresql-contrib <br>
+⚠️Lembre-se que o Postgree também precisa ser instalado no SO
+```
+sudo apt install postgresql postgresql-contrib
+```
 *O PostgreSQL é um software externo, não é um pacote Python, então nunca vai aparecer no requirements.txt.*
 
 ### 🔹 4. Configure o banco de dados (PostgreSQL)
 
-"sudo -u postgres psql" (para entrar no prompt SQL)<br>
-*Execute os comandos abaixo no prompt SQL ou copie e cole!*<br><br>
-CREATE DATABASE monografias;<br>
-CREATE USER seu_usuario WITH PASSWORD 'sua_senha';<br>
-GRANT ALL PRIVILEGES ON DATABASE monografias TO seu_usuario;<br>
-ALTER DATABASE monografias OWNER TO seu_usuario;<br><br>
-"\q" para sair do prompt SQL
+```
+sudo -u postgres psql #para entrar no prompt SQL
+```
+*Execute os comandos abaixo no prompt SQL ou copie e cole!*
+```
+CREATE DATABASE monografias;
+CREATE USER seu_usuario WITH PASSWORD 'sua_senha';
+GRANT ALL PRIVILEGES ON DATABASE monografias TO seu_usuario;
+ALTER DATABASE monografias OWNER TO seu_usuario;
+\q #para sair do prompt SQL
+```
 
-No arquivo settings.py, ajuste as credenciais do PostgreSQL:<br>
-DATABASES = {<br>
-    'default': {<br>
-        'ENGINE': 'django.db.backends.postgresql',<br>
-        'NAME': 'monografias',<br>
-        'USER': 'seu_usuário',<br>
-        'PASSWORD': 'sua_senha',<br>
-        'HOST': 'localhost',<br>
-        'PORT': '5432',<br>
-    }<br>
-}<br>
-
-
+No arquivo settings.py, ajuste as credenciais do PostgreSQL:
+```
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'monografias',
+        'USER': 'seu_usuário',
+        'PASSWORD': 'sua_senha',
+        'HOST': 'localhost',
+        'PORT': '5432',
+    }
+}
+```
 
 ### 🔹 5. Rode as migrações
+```
 python manage.py migrate
-
+```
 
 ### 🔹 6. Crie um superusuário (Administrador)
+```
 python manage.py createsuperuser
-
+```
 
 ### 🔹 7. Inicie o servidor
+```
 python manage.py runserver
+```
 
 ### 🔹 8. Acesse pelo navegador
 http://127.0.0.1:8000
