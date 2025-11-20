@@ -9,7 +9,22 @@ from django.contrib.auth.models import User, Group
 from django.http import HttpResponseForbidden
 
 def home(request):
-    return render(request, 'home.html')
+    query = request.GET.get('q')
+    monografias = Monografia.objects.all()
+    
+    if query:
+        monografias = monografias.filter(
+            Q(titulo__icontains=query) |
+            Q(orientador__user__username__icontains=query) |
+            Q(coorientador__user__username__icontains=query) |
+            Q(palavras_chave__icontains=query)
+        )
+    
+    paginator = Paginator(monografias, 10)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    
+    return render(request, 'home.html', {'monografias': page_obj})
 
 @login_required
 def dashboard(request):
@@ -40,7 +55,6 @@ def listar_defesas(request):
     defesas = Banca.objects.all()
     is_admin = request.user.is_superuser or request.user.groups.filter(name='Administrador').exists()
     is_professor = request.user.groups.filter(name='Professor').exists()
-
 
     for banca in defesas:
         banca.pode_gerenciar = (
