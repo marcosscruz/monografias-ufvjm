@@ -15,10 +15,6 @@ def home(request):
 def dashboard(request):
     return render(request, 'dashboard.html')
 
-
-
-
-
 @login_required
 def dashboard(request):
     if request.user.is_superuser or request.user.groups.filter(name='Administrador').exists():
@@ -27,10 +23,6 @@ def dashboard(request):
         return render(request, 'dashboard_professor.html')
     else:
         return render(request, 'dashboard_aluno.html')
-
-
-
-
 
 @login_required
 def agendar_defesa(request):
@@ -62,7 +54,6 @@ def listar_defesas(request):
         'is_professor': is_professor,
     })
 
-
 @login_required
 def deletar_defesa(request, pk):
     banca = get_object_or_404(Banca, pk=pk)
@@ -76,8 +67,6 @@ def deletar_defesa(request, pk):
         return redirect('listar_defesas')
 
     return render(request, 'deletar_defesa.html', {'banca': banca})
-
-
 
 @login_required
 def gerenciar_defesa(request, pk):
@@ -103,10 +92,6 @@ def gerenciar_defesa(request, pk):
         'is_professor': is_professor,
     })
 
-
-
-
-
 @login_required
 def criar_monografia(request):
     if request.method == 'POST':
@@ -120,7 +105,6 @@ def criar_monografia(request):
     else:
         form = MonografiaForm()
     return render(request, 'criar_monografia.html', {'form': form})
-
 
 @login_required
 def listar_monografias(request):
@@ -142,18 +126,13 @@ def listar_monografias(request):
     
     return render(request, 'listar_monografias.html', {'monografias': page_obj, 'is_admin': is_admin})
 
-
-
-
-
 @login_required
 def deletar_monografia(request, pk):
     monografia = get_object_or_404(Monografia, pk=pk)
-
     
     if not request.user.is_superuser and monografia.orientador.user != request.user:
         return HttpResponseForbidden()
-
+    
     if request.method == 'POST':
         monografia.delete()
         return redirect('listar_monografias')
@@ -171,11 +150,6 @@ def editar_monografia(request, pk):
     else:
         form = MonografiaForm(instance=monografia)
     return render(request, 'editar_monografia.html', {'form': form})
-
-
-
-
-
 
 def criar_professor(request):
     if request.method == 'POST':
