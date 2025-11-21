@@ -6,6 +6,7 @@ from django.conf.urls.static import static
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('appmonografias.urls')),   # restante das rotas
+    path('api/', include('appmonografias.urls_api')),  # Rotas da API
     path('accounts/', include('allauth.urls')),  # para as rotas login/logout do allauth
 ]
 

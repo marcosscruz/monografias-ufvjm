@@ -19,5 +19,4 @@ urlpatterns = [
     path('defesa/listar/', views.listar_defesas, name='listar_defesas'),
     path('defesa/gerenciar/<int:pk>/', views.gerenciar_defesa, name='gerenciar_defesa'),
     path('defesa/deletar/<int:pk>/', views.deletar_defesa, name='deletar_defesa'),
-
 ]   
