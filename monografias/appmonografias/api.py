@@ -1,10 +1,12 @@
 from rest_framework import viewsets, permissions, status
 from rest_framework.filters import SearchFilter, OrderingFilter
 from rest_framework.response import Response
-from rest_framework.decorators import api_view, permission_classes
+from rest_framework.decorators import api_view, permission_classes, action
 from rest_framework.authtoken.models import Token
 from django.contrib.auth.models import User
+from django.http import FileResponse
 from .models import Professor, Monografia, Banca, HistoricoMonografia, HistoricoBanca
+from .pdf_templates.ata_defesa import gerar_ata_defesa
 from .serializers import (
     ProfessorSerializer, 
     MonografiaSerializer, 
@@ -151,6 +153,36 @@ class BancaCRUDViewSet(viewsets.ModelViewSet):
     search_fields = ['monografia__titulo', 'status']
     ordering_fields = ['data', 'status', 'criado_em']
     ordering = ['-data']
+    
+    @action(detail=True, methods=['get'], permission_classes=[permissions.IsAuthenticated])
+    def gerar_ata(self, request, pk=None):
+        """
+        GET /api/bancas-crud/<id>/gerar-ata/
+        """
+        try:
+            banca = self.get_object()
+            # Gera o PDF
+            pdf_buffer = gerar_ata_defesa(banca)
+            
+            # Retorna como download
+            response = FileResponse(
+                pdf_buffer,
+                as_attachment=True,
+                filename=f'ata_defesa_{banca.id}_{banca.monografia.titulo[:30]}.pdf',
+                content_type='application/pdf'
+            )
+            return response
+            
+        except Banca.DoesNotExist:
+            return Response(
+                {'error': 'Banca não encontrada'},
+                status=status.HTTP_404_NOT_FOUND
+            )
+        except Exception as e:
+            return Response(
+                {'error': f'Erro ao gerar PDF: {str(e)}'},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
     
 # ========== VIEWSETS PARA HISTÓRICO ==========
 class HistoricoMonografiaViewSet(viewsets.ReadOnlyModelViewSet):
