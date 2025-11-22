@@ -7,17 +7,18 @@ from .api import (
     BancaCRUDViewSet,
     HistoricoMonografiaViewSet,
     HistoricoBancaViewSet,
-    obter_token,
+    dashboard_graficos,
+    obter_token
 )
 
-# rota automática - gera as rotas padrão
+# Router automático
 router = DefaultRouter()
 
-# rotas públicas
+# Endpoints PÚBLICOS
 router.register(r'professores', ProfessorPublicViewSet, basename='professor-list')
 router.register(r'monografias', MonografiaPublicViewSet, basename='monografia-list')
 
-# rotas restritas (autenticadas)
+# Endpoints RESTRITOS (com autenticação)
 router.register(r'monografias-crud', MonografiaCRUDViewSet, basename='monografia-crud')
 router.register(r'bancas-crud', BancaCRUDViewSet, basename='banca-crud')
 
@@ -27,5 +28,6 @@ router.register(r'historico-bancas', HistoricoBancaViewSet, basename='historico-
 
 urlpatterns = [
     path('token/', obter_token, name='obter-token'),
+    path('dashboard-graficos/', dashboard_graficos, name='dashboard-graficos'),  # ← Adicione isto
     path('', include(router.urls)),
 ]

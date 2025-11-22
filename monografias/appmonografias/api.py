@@ -5,8 +5,10 @@ from rest_framework.decorators import api_view, permission_classes, action
 from rest_framework.authtoken.models import Token
 from django.contrib.auth.models import User
 from django.http import FileResponse
+from datetime import datetime
 from .models import Professor, Monografia, Banca, HistoricoMonografia, HistoricoBanca
 from .pdf_templates.ata_defesa import gerar_ata_defesa
+from .graficos import DashboardGraficos
 from .serializers import (
     ProfessorSerializer, 
     MonografiaSerializer, 
@@ -212,3 +214,37 @@ class HistoricoBancaViewSet(viewsets.ReadOnlyModelViewSet):
     ordering_fields = ['data_alteracao', 'tipo_alteracao']
     ordering = ['-data_alteracao']
     filterset_fields = ['banca', 'tipo_alteracao', 'usuario']
+    
+# ========== ENDPOINT DASHBOARD ==========
+@api_view(['GET'])
+@permission_classes([permissions.IsAuthenticated])
+def dashboard_graficos(request):
+    """
+    Endpoint que retorna todos os gráficos do dashboard em JSON.
+    Authorization: Token seu_token_aqui
+    """
+    try:
+        graficos = DashboardGraficos()
+        
+        # Gera todos os gráficos
+        dados = {
+            'success': True,
+            'timestamp': datetime.now().isoformat(),
+            'graficos': {
+                'monografias_por_ano': graficos.get_monografias_por_ano(),
+                'monografias_por_area': graficos.get_monografias_por_area(),
+                'status_defesas': graficos.get_status_defesas(),
+                'notas_defesas': graficos.get_notas_defesas(),
+                'defesas_proximas': graficos.get_defesas_proximas(dias=30),
+                'professores_mais_ativos': graficos.get_professores_mais_ativos(),
+            },
+            'estatisticas': graficos.get_estatisticas_resumo(),
+        }
+        
+        return Response(dados)
+        
+    except Exception as e:
+        return Response(
+            {'error': f'Erro ao gerar dashboard: {str(e)}'},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )
