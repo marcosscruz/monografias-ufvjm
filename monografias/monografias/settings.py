@@ -43,8 +43,9 @@ INSTALLED_APPS = [
     'appmonografias',
     # REST Framework
     'rest_framework',
+    'rest_framework.authtoken',
     'django_filters',
-    # 'drf_yasg' # opcional para documentação
+    # 'drf_yasg', # opcional para documentação
 ]
 
 ACCOUNT_FORMS = {
@@ -74,7 +75,7 @@ MIDDLEWARE = [
     'allauth.account.middleware.AccountMiddleware',
 ]
 
-# REST Framework Configuration
+# ============= REST Framework Configuration =============
 REST_FRAMEWORK = {
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
     'PAGE_SIZE': 10,
@@ -84,13 +85,8 @@ REST_FRAMEWORK = {
         'rest_framework.filters.OrderingFilter',        
     ],
     
-    #############################
     'DEFAULT_AUTHENTICATION_CLASSES': (
-        'rest_framework_simplejwt.authentication.JWTAuthentication',
-        'rest_framework.authentication.SessionAuthentication',  # opcional
-    ),
-    'DEFAULT_PERMISSION_CLASSES': (
-        'rest_framework.permissions.IsAuthenticated',
+        'rest_framework.authentication.TokenAuthentication',
     ),
 }
 
