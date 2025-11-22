@@ -4,13 +4,15 @@ from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.authtoken.models import Token
 from django.contrib.auth.models import User
-from .models import Professor, Monografia, Banca
+from .models import Professor, Monografia, Banca, HistoricoMonografia, HistoricoBanca
 from .serializers import (
     ProfessorSerializer, 
     MonografiaSerializer, 
     BancaSerializer,
     MonografiaCRUDSerializer,
-    BancaCRUDSerializer
+    BancaCRUDSerializer,
+    HistoricoMonografiaSerializer,
+    HistoricoBancaSerializer
 )
 
 # ========== PERMISSÕES ==========
@@ -88,7 +90,7 @@ class ProfessorPublicViewSet(viewsets.ReadOnlyModelViewSet):
     permission_classes = [permissions.AllowAny]
     filter_backends = [SearchFilter, OrderingFilter]
     search_fields = ['user__first_name', 'user__last_name', 'area_pesquisa']
-    ordering_fields = ['user__first_name']
+    ordering_fields = ['user__first_name', 'titulação', 'id']
     ordering = ['user__first_name']  # ordenação padrão
 
 class MonografiaPublicViewSet(viewsets.ReadOnlyModelViewSet):
@@ -102,8 +104,10 @@ class MonografiaPublicViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = MonografiaSerializer
     permission_classes = [permissions.AllowAny]
     filter_backends = [SearchFilter, OrderingFilter]
-    search_fields = ['titulo', 'orientador__user__first_name', 'orientador__user__last_name', 'palavras_chave']
-    ordering_fields = ['titulo', 'criado_em']
+    search_fields = ['titulo', 'orientador__user__first_name', 
+                     'orientador__user__last_name', 'palavras_chave', 'resumo']
+    ordering_fields = ['titulo', 'criado_em', 'atualizado_em', 'orientador__user__first_name']
+    ordering = ['-criado_em'] # recentes primeiro
     
 # ========== VIEWSETS RESTRITOS (AUTENTICADOS) ==========
 class MonografiaCRUDViewSet(viewsets.ModelViewSet):
@@ -124,7 +128,8 @@ class MonografiaCRUDViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAuthenticated, IsAdminOrReadOnly]
     filter_backends = [SearchFilter, OrderingFilter]
     search_fields = ['titulo', 'orientador__user__first_name']
-    ordering_fields = ['titulo', 'criado_em']
+    ordering_fields = ['titulo', 'criado_em', 'atualizado_em']
+    ordering = ['-criado_em']
 
 class BancaCRUDViewSet(viewsets.ModelViewSet):
     """
@@ -144,4 +149,34 @@ class BancaCRUDViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAuthenticated, IsAdminOrReadOnly]
     filter_backends = [SearchFilter, OrderingFilter]
     search_fields = ['monografia__titulo', 'status']
-    ordering_fields = ['data', 'status']
+    ordering_fields = ['data', 'status', 'criado_em']
+    ordering = ['-data']
+    
+# ========== VIEWSETS PARA HISTÓRICO ==========
+class HistoricoMonografiaViewSet(viewsets.ReadOnlyModelViewSet):
+    """
+    API de Histórico de Monografias (leitura).
+    
+    Requer autenticação por token
+    """
+    queryset = HistoricoMonografia.objects.all()
+    serializer_class = HistoricoMonografiaSerializer
+    permission_classes = [permissions.IsAuthenticated]
+    filter_backends = [SearchFilter, OrderingFilter]
+    ordering_fields = ['data_alteracao', 'tipo_alteracao']
+    ordering = ['-data_alteracao']
+    filterset_fields = ['monografia', 'tipo_alteracao', 'usuario']
+
+class HistoricoBancaViewSet(viewsets.ReadOnlyModelViewSet):
+    """
+    API de Histórico de Bancas (leitura).
+    
+    Requer autenticação por token
+    """
+    queryset = HistoricoBanca.objects.all()
+    serializer_class = HistoricoBancaSerializer
+    permission_classes = [permissions.IsAuthenticated]
+    filter_backends = [SearchFilter, OrderingFilter]
+    ordering_fields = ['data_alteracao', 'tipo_alteracao']
+    ordering = ['-data_alteracao']
+    filterset_fields = ['banca', 'tipo_alteracao', 'usuario']

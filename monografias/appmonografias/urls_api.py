@@ -5,6 +5,8 @@ from .api import (
     MonografiaPublicViewSet,
     MonografiaCRUDViewSet,
     BancaCRUDViewSet,
+    HistoricoMonografiaViewSet,
+    HistoricoBancaViewSet,
     obter_token,
 )
 
@@ -18,6 +20,10 @@ router.register(r'monografias', MonografiaPublicViewSet, basename='monografia-li
 # rotas restritas (autenticadas)
 router.register(r'monografias-crud', MonografiaCRUDViewSet, basename='monografia-crud')
 router.register(r'bancas-crud', BancaCRUDViewSet, basename='banca-crud')
+
+# Endpoints HISTÓRICO (com autenticação)
+router.register(r'historico-monografias', HistoricoMonografiaViewSet, basename='historico-monografia')
+router.register(r'historico-bancas', HistoricoBancaViewSet, basename='historico-banca')
 
 urlpatterns = [
     path('token/', obter_token, name='obter-token'),

@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Aluno, Professor, Monografia, Banca
+from .models import Aluno, Professor, Monografia, Banca, HistoricoMonografia, HistoricoBanca
 
 class ProfessorSerializer(serializers.ModelSerializer):
     """Serializer para Professor - converte modelo em JSON"""
@@ -137,6 +137,73 @@ class BancaCRUDSerializer(serializers.ModelSerializer):
     
     def update(self, instance, validated_data):
         """Atualiza uma banca"""
+        if 'monografia_id' in validated_data:
+            instance.monografia = validated_data.pop('monografia_id')
+        if 'professores_avaliadores_ids' in validated_data:
+            professores = validated_data.pop('professores_avaliadores_ids')
+            instance.professores_avaliadores.set(professores)
+        
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+        instance.save()
+        return instance
+
+class HistoricoMonografiaSerializer(serializers.ModelSerializer):
+    """Serializer para histórico de monografias"""
+    usuario_nome = serializers.CharField(source='usuario.get_full_name', read_only=True)
+    
+    class Meta:
+        model = HistoricoMonografia
+        fields = ['id', 'monografia', 'usuario_nome', 'tipo_alteracao', 
+                  'campo_alterado', 'valor_anterior', 'valor_novo', 
+                  'descricao', 'data_alteracao']
+        read_only_fields = ['id', 'data_alteracao']
+
+class HistoricoBancaSerializer(serializers.ModelSerializer):
+    """Serializer para histórico de bancas"""
+    usuario_nome = serializers.CharField(source='usuario.get_full_name', read_only=True)
+    
+    class Meta:
+        model = HistoricoBanca
+        fields = ['id', 'banca', 'usuario_nome', 'tipo_alteracao',
+                  'campo_alterado', 'valor_anterior', 'valor_novo',
+                  'descricao', 'data_alteracao']
+        read_only_fields = ['id', 'data_alteracao']
+    """Serializer completo para Banca"""
+    monografia_id = serializers.PrimaryKeyRelatedField(
+        queryset=Monografia.objects.all(),
+        write_only=True,
+        label='ID da Monografia'
+    )
+    professores_avaliadores_ids = serializers.PrimaryKeyRelatedField(
+        queryset=Professor.objects.all(),
+        many=True,
+        write_only=True,
+        label='IDs dos Professores Avaliadores'
+    )
+    
+    # campos de leitura
+    monografia = MonografiaSerializer(read_only=True)
+    professores_avaliadores = ProfessorSerializer(many=True, read_only=True)
+    
+    class Meta:
+        model = Banca
+        fields = ['id', 'monografia', 'monografia_id', 'professores_avaliadores',
+                  'professores_avaliadores_ids', 'data', 'horario', 'local',
+                  'nota_final', 'status']
+        read_only_fields = ['id']
+    
+    def create(self, validated_data):
+        """Cria uma nova banca"""
+        monografia = validated_data.pop('monografia_id')
+        professores = validated_data.pop('professores_avaliadores_ids')
+        
+        banca = Banca.objects.create(monografia=monografia, **validated_data)
+        banca.professores_avaliadores.set(professores)
+        return banca
+    
+    def update(self, instance, validated_data):
+        """Atualiza uma banca existente"""
         if 'monografia_id' in validated_data:
             instance.monografia = validated_data.pop('monografia_id')
         if 'professores_avaliadores_ids' in validated_data:

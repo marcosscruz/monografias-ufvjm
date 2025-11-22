@@ -63,3 +63,55 @@ class Banca(models.Model):
 
     def __str__(self):
         return f'{self.monografia.titulo} - {self.get_status_display()}'
+    
+class HistoricoMonografia(models.Model):
+    """Registra todas as alterações feitas em uma monografia"""
+    
+    TIPO_ALTERACAO_CHOICES = [
+        ('CRIACAO', 'Criação'),
+        ('EDICAO', 'Edição'),
+        ('REMOCAO', 'Remoção'),
+    ]
+    
+    monografia = models.ForeignKey(Monografia, on_delete=models.CASCADE, related_name='historicos')
+    usuario = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
+    tipo_alteracao = models.CharField(max_length=10, choices=TIPO_ALTERACAO_CHOICES)
+    campo_alterado = models.CharField(max_length=100, null=True, blank=True)
+    valor_anterior = models.TextField(null=True, blank=True)
+    valor_novo = models.TextField(null=True, blank=True)
+    descricao = models.TextField(blank=True)
+    data_alteracao = models.DateTimeField(auto_now_add=True)
+    
+    class Meta:
+        ordering = ['-data_alteracao']
+        verbose_name = 'Histórico de Monografia'
+        verbose_name_plural = 'Históricos de Monografias'
+    
+    def __str__(self):
+        return f'{self.monografia.titulo} - {self.get_tipo_alteracao_display()} por {self.usuario}'
+
+class HistoricoBanca(models.Model):
+    """Registra todas as alterações feitas em uma banca"""
+    
+    TIPO_ALTERACAO_CHOICES = [
+        ('CRIACAO', 'Criação'),
+        ('EDICAO', 'Edição'),
+        ('REMOCAO', 'Remoção'),
+    ]
+    
+    banca = models.ForeignKey(Banca, on_delete=models.CASCADE, related_name='historicos')
+    usuario = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
+    tipo_alteracao = models.CharField(max_length=10, choices=TIPO_ALTERACAO_CHOICES)
+    campo_alterado = models.CharField(max_length=100, null=True, blank=True)
+    valor_anterior = models.TextField(null=True, blank=True)
+    valor_novo = models.TextField(null=True, blank=True)
+    descricao = models.TextField(blank=True)
+    data_alteracao = models.DateTimeField(auto_now_add=True)
+    
+    class Meta:
+        ordering = ['-data_alteracao']
+        verbose_name = 'Histórico de Banca'
+        verbose_name_plural = 'Históricos de Bancas'
+    
+    def __str__(self):
+        return f'{self.banca.monografia.titulo} - {self.get_tipo_alteracao_display()} por {self.usuario}'
