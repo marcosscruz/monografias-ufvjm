@@ -42,8 +42,6 @@ def obter_token(request):
     
     POST /api/token/
     corpo: {"username": "seu_usuario", "password": "sua_senha"}
-    
-    resposta: {"token": "abc123..."}
     """
     username = request.data.get('username')
     password = request.data.get('password')
@@ -91,6 +89,7 @@ class ProfessorPublicViewSet(viewsets.ReadOnlyModelViewSet):
     filter_backends = [SearchFilter, OrderingFilter]
     search_fields = ['user__first_name', 'user__last_name', 'area_pesquisa']
     ordering_fields = ['user__first_name']
+    ordering = ['user__first_name']  # ordenação padrão
 
 class MonografiaPublicViewSet(viewsets.ReadOnlyModelViewSet):
     """
@@ -98,10 +97,6 @@ class MonografiaPublicViewSet(viewsets.ReadOnlyModelViewSet):
     
     - GET /api/monografias/ - Lista todas as monografias
     - GET /api/monografias/<id>/ - Detalhe de uma monografia
-    
-    filtros
-    - ?search=titulo - Busca por título
-    - ?search=orientador - Busca por nome do orientador
     """
     queryset = Monografia.objects.all()
     serializer_class = MonografiaSerializer
