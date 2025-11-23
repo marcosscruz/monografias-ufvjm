@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Vue - API Monografias</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #667eea;
+            --secondary: #764ba2;
+            --success: #28a745;
+            --danger: #dc3545;
+            --warning: #ffc107;
+            --info: #17a2b8;
+        }
+
+        body {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        #app {
+            min-height: 100vh;
+        }
+
+        /* Navbar */
+        .navbar {
+            background: rgba(0, 0, 0, 0.8) !important;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .navbar-brand {
+            font-weight: bold;
+            font-size: 1.5rem;
+            color: #fff !important;
+        }
+
+        .navbar-brand span {
+            color: var(--primary);
+        }
+
+        .user-info {
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+
+        .logout-btn {
+            background: var(--danger);
+            color: white !important;
+            border-radius: 5px;
+            padding: 0.5rem 1rem !important;
+            transition: 0.3s;
+            border: none;
+            cursor: pointer;
+        }
+
+        .logout-btn:hover {
+            background: #c82333;
+            transform: translateY(-2px);
+        }
+
+        .container-main {
+            max-width: 1400px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 3rem;
+            animation: fadeInDown 0.5s ease;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        /* Toolbar */
+        .toolbar {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .toolbar button {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: white;
+        }
+
+        .btn-refresh {
+            background: var(--primary);
+        }
+
+        .btn-refresh:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+        }
+
+        .btn-export {
+            background: var(--success);
+        }
+
+        .btn-export:hover {
+            background: #218838;
+            transform: translateY(-2px);
+        }
+
+        /* Loading */
+        .loading-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 400px;
+            gap: 1rem;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid var(--primary);
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Error */
+        .error-alert {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 1rem;
+            border-radius: 8px;
+            border-left: 4px solid var(--danger);
+            margin-bottom: 1rem;
+            animation: slideInDown 0.3s ease;
+        }
+
+        @keyframes slideInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+            transition: all 0.3s ease;
+            border-left: 5px solid;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.2);
+        }
+
+        .stat-card.blue {
+            border-color: var(--primary);
+        }
+
+        .stat-card.green {
+            border-color: var(--success);
+        }
+
+        .stat-card.orange {
+            border-color: var(--warning);
+        }
+
+        .stat-card.red {
+            border-color: var(--danger);
+        }
+
+        .stat-card.purple {
+            border-color: var(--secondary);
+        }
+
+        .stat-icon {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            opacity: 0.8;
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #333;
+            margin: 0.5rem 0;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* Charts */
+        .charts-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .chart-card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+            min-height: 450px;
+            display: flex;
+            flex-direction: column;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .chart-title {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid var(--primary);
+        }
+
+        .chart-content {
+            flex: 1;
+            overflow: auto;
+        }
+
+        /* Footer */
+        footer {
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            text-align: center;
+            padding: 2rem;
+            margin-top: 3rem;
+        }
+
+        .last-updated {
+            text-align: center;
+            color: #666;
+            font-size: 0.9rem;
+            margin: 1rem 0;
+            background: white;
+            padding: 0.75rem;
+            border-radius: 8px;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 1.8rem;
+            }
+
+            .charts-container {
+                grid-template-columns: 1fr;
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 1rem;
+            }
+
+            .toolbar {
+                flex-direction: column;
+            }
+
+            .toolbar button {
+                width: 100%;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .stat-number {
+                font-size: 1.5rem;
+            }
+
+            .header h1 {
+                font-size: 1.5rem;
+            }
+        }
+
+        .fade-enter-active, .fade-leave-active {
+            transition: opacity 0.5s;
+        }
+
+        .fade-enter-from, .fade-leave-to {
+            opacity: 0;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="app">
+        <!-- Navbar -->
+        <nav class="navbar navbar-dark">
+            <div class="container-fluid">
+                <span class="navbar-brand">
+                    <i class="fas fa-chart-line"></i>
+                    Dashboard <span>API Monografias</span>
+                </span>
+                <div class="user-info">
+                    {% verbatim %}
+                        <div class="user-avatar">{{ userName.charAt(0).toUpperCase() }}</div>
+                        <div>
+                            <div style="font-weight: bold;">{{ userName }}</div>
+                            <small>{{ new Date(lastUpdate).toLocaleString('pt-BR') }}</small>
+                        </div>
+                        <button class="logout-btn" @click="logout">
+                            <i class="fas fa-sign-out-alt"></i> Sair
+                        </button>
+                    {% endverbatim %}
+                </div>
+            </div>
+        </nav>
+
+        <!-- Conteúdo Principal -->
+        <div class="container-main">
+            <div class="header">
+                <h1>📊 Dashboard de Análise</h1>
+                <p>Visualize estatísticas e gráficos em tempo real</p>
+            </div>
+
+            <!-- Erro -->
+            <div v-if="erro" class="error-alert">
+                <i class="fas fa-exclamation-circle"></i> {{ erro }}
+            </div>
+
+            <!-- Toolbar -->
+            <div class="toolbar">
+                {% verbatim %}
+                    <button class="btn-refresh" @click="carregarDados" :disabled="carregando">
+                        <i class="fas" :class="carregando ? 'fa-spinner fa-spin' : 'fa-sync-alt'"></i>
+                        {{ carregando ? 'Carregando...' : 'Atualizar Dados' }}
+                    </button>
+                    <button class="btn-export" @click="exportarDados">
+                        <i class="fas fa-download"></i> Exportar CSV
+                    </button>
+                {% endverbatim %}
+            </div>
+
+            <!-- Loading -->
+            <div v-if="carregando" class="loading-container">
+                <div class="spinner"></div>
+                <span style="color: white; font-weight: bold;">Carregando dashboard...</span>
+            </div>
+
+            <!-- Estatísticas -->
+            <transition name="fade" v-if="!carregando">
+                <div class="stats-grid" v-if="estatisticas">
+                    <div class="stat-card blue" v-for="(valor, chave) in formatarEstatisticas()" :key="chave">
+                        <div class="stat-icon">
+                            <i class="fas" :class="getIconeEstatistica(chave)"></i>
+                        </div>
+                        <div class="stat-number">{{ valor.numero }}</div>
+                        <div class="stat-label">{{ valor.label }}</div>
+                    </div>
+                </div>
+            </transition>
+
+            <!-- Gráficos -->
+            <transition name="fade" v-if="!carregando">
+                {% verbatim %}
+                    <div class="charts-container" v-if="graficos">
+                        <div class="chart-card" v-for="(grafico, chave) in graficos" :key="chave">
+                            <div class="chart-title">
+                                <i class="fas fa-chart-bar"></i> {{ getNomeGrafico(chave) }}
+                            </div>
+                            <div class="chart-content" v-html="grafico"></div>
+                        </div>
+                    </div>
+                {% endverbatim %}
+            </transition>
+
+            <!-- Última atualização -->
+            <div class="last-updated" v-if="!carregando && lastUpdate">
+                {% verbatim %}
+                    <i class="fas fa-clock"></i> 
+                    Última atualização: {{ new Date(lastUpdate).toLocaleString('pt-BR') }}
+                {% endverbatim %}
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <footer>
+            <p>&copy; 2025 Sistema de Monografias - Sistemas Distribuídos - UFVJM</p>
+            <small>Desenvolvido: Gabriel Campolina, João Vitor Oliveira, Marcos Cruz, Robson Junior</small>
+        </footer>
+    </div>
+
+    <script>
+        const { createApp } = Vue;
+
+        createApp({
+            data() {
+                return {
+                    token: localStorage.getItem('token'),
+                    userName: localStorage.getItem('userName') || 'Usuário',
+                    API_URL: 'http://localhost:8000/api',
+                    carregando: true,
+                    erro: null,
+                    graficos: null,
+                    estatisticas: null,
+                    lastUpdate: null,
+                    nomesGraficos: {
+                        'monografias_por_ano': 'Monografias por Ano',
+                        'monografias_por_area': 'Distribuição por Área',
+                        'status_defesas': 'Status das Defesas',
+                        'notas_defesas': 'Distribuição de Notas',
+                        'defesas_proximas': 'Defesas Próximas',
+                        'professores_mais_ativos': 'Professores Mais Ativos'
+                    },
+                    iconesEstatisticas: {
+                        'total_monografias': 'fa-book',
+                        'total_defesas': 'fa-chalkboard-user',
+                        'defesas_agendadas': 'fa-calendar',
+                        'defesas_realizadas': 'fa-check-circle',
+                        'media_notas': 'fa-star',
+                        'total_professores': 'fa-users',
+                        'monografias_este_ano': 'fa-calendar-year'
+                    }
+                }
+            },
+            mounted() {
+                if (!this.token) {
+                    window.location.href = '/api-login/';
+                    return;
+                }
+                this.carregarDados();
+            },
+            methods: {
+                async carregarDados() {
+                    this.carregando = true;
+                    this.erro = null;
+
+                    try {
+                        const response = await fetch(`${this.API_URL}/dashboard-graficos/`, {
+                            method: 'GET',
+                            headers: {
+                                'Authorization': `Token ${this.token}`,
+                                'Content-Type': 'application/json',
+                            }
+                        });
+
+                        if (response.status === 401) {
+                            this.logout();
+                            return;
+                        }
+
+                        if (!response.ok) {
+                            throw new Error(`Erro ${response.status}: ${response.statusText}`);
+                        }
+
+                        const dados = await response.json();
+                        this.graficos = dados.graficos;
+                        this.estatisticas = dados.estatisticas;
+                        this.lastUpdate = dados.timestamp;
+
+                    } catch (erro) {
+                        console.error('Erro:', erro);
+                        this.erro = `Erro ao carregar dashboard: ${erro.message}`;
+                    } finally {
+                        this.carregando = false;
+                    }
+                },
+
+                formatarEstatisticas() {
+                    const labels = {
+                        'total_monografias': 'Total de Monografias',
+                        'total_defesas': 'Total de Defesas',
+                        'defesas_agendadas': 'Defesas Agendadas',
+                        'defesas_realizadas': 'Defesas Realizadas',
+                        'media_notas': 'Média de Notas',
+                        'total_professores': 'Total de Professores',
+                        'monografias_este_ano': 'Monografias este Ano'
+                    };
+
+                    const resultado = {};
+                    for (const [chave, valor] of Object.entries(this.estatisticas)) {
+                        resultado[chave] = {
+                            numero: valor,
+                            label: labels[chave] || chave
+                        };
+                    }
+                    return resultado;
+                },
+
+                getNomeGrafico(chave) {
+                    return this.nomesGraficos[chave] || chave;
+                },
+
+                getIconeEstatistica(chave) {
+                    return this.iconesEstatisticas[chave] || 'fa-chart-bar';
+                },
+
+                logout() {
+                    localStorage.removeItem('token');
+                    localStorage.removeItem('userName');
+                    window.location.href = '/accounts/logout/';
+                },
+
+                exportarDados() {
+                    if (!this.estatisticas) return;
+
+                    let csv = 'Métrica,Valor\n';
+                    const labels = {
+                        'total_monografias': 'Total de Monografias',
+                        'total_defesas': 'Total de Defesas',
+                        'defesas_agendadas': 'Defesas Agendadas',
+                        'defesas_realizadas': 'Defesas Realizadas',
+                        'media_notas': 'Média de Notas',
+                        'total_professores': 'Total de Professores',
+                        'monografias_este_ano': 'Monografias este Ano'
+                    };
+
+                    for (const [chave, valor] of Object.entries(this.estatisticas)) {
+                        csv += `"${labels[chave] || chave}",${valor}\n`;
+                    }
+
+                    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+                    const link = document.createElement('a');
+                    link.href = URL.createObjectURL(blob);
+                    link.download = `dashboard_${new Date().toISOString().slice(0, 10)}.csv`;
+                    link.click();
+                }
+            }
+        }).mount('#app');
+    </script>
+</body>
+</html>

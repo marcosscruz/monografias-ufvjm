@@ -2,7 +2,7 @@ from django.urls import path
 from . import views
 
 urlpatterns = [
-    path('', views.home, name='home'),
+    path('', views.api_login_vue, name='api-login-vue'),
     path('dashboard/', views.dashboard, name='dashboard'),
 
     # Monografias
@@ -19,4 +19,7 @@ urlpatterns = [
     path('defesa/listar/', views.listar_defesas, name='listar_defesas'),
     path('defesa/gerenciar/<int:pk>/', views.gerenciar_defesa, name='gerenciar_defesa'),
     path('defesa/deletar/<int:pk>/', views.deletar_defesa, name='deletar_defesa'),
+    
+    path('api-login-vue/', views.api_login_vue, name='api-login-vue'),
+    path('api-dashboard-vue/', views.api_dashboard_vue, name='api-dashboard-vue'),
 ]   
