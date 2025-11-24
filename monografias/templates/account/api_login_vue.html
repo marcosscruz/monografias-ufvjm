@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Monografias - Sistema UFVJM</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #667eea;
+            --secondary: #764ba2;
+            --success: #28a745;
+            --danger: #dc3545;
+            --warning: #ffc107;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        /* ============ NAVBAR ============ */
+        .navbar {
+            background: rgba(0, 0, 0, 0.8) !important;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .navbar-brand {
+            font-weight: 700;
+            font-size: 1.5rem;
+            color: white !important;
+        }
+
+        .navbar-brand i {
+            color: #ffc107;
+            margin-right: 0.5rem;
+        }
+
+        .user-info {
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-left: auto;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        .btn-logout {
+            background: var(--danger);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: 0.3s;
+        }
+
+        .btn-logout:hover {
+            background: #c82333;
+            transform: translateY(-2px);
+        }
+
+        /* ============ LOGIN PAGE ============ */
+        .login-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .login-card {
+            background: white;
+            border-radius: 15px;
+            padding: 3rem 2rem;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            width: 100%;
+            max-width: 420px;
+            animation: slideIn 0.5s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .login-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .login-header i {
+            font-size: 3rem;
+            color: var(--primary);
+            margin-bottom: 1rem;
+            animation: bounce 1s ease infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .login-header h1 {
+            font-size: 1.8rem;
+            color: #333;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+
+        .login-header p {
+            color: #666;
+            font-size: 0.95rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            color: #333;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            display: block;
+        }
+
+        .input-wrapper {
+            position: relative;
+        }
+
+        .form-group input {
+            width: 100%;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 0.75rem 1rem 0.75rem 2.5rem;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-group input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+            outline: none;
+        }
+
+        .input-icon {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--primary);
+        }
+
+        .toggle-password {
+            position: absolute;
+            right: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #999;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .toggle-password:hover {
+            color: var(--primary);
+        }
+
+        .btn-login {
+            width: 100%;
+            padding: 0.75rem;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            border: none;
+            color: white;
+            font-weight: bold;
+            font-size: 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 1rem;
+        }
+
+        .btn-login:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-login:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
+
+        .alert-box {
+            padding: 1rem;
+            border-radius: 8px;
+            border-left: 4px solid;
+            margin-bottom: 1.5rem;
+            animation: slideInDown 0.3s ease;
+        }
+
+        .alert-error {
+            background: #f8d7da;
+            color: #721c24;
+            border-color: var(--danger);
+        }
+
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border-color: var(--success);
+        }
+
+        @keyframes slideInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .login-card {
+                margin: 1rem;
+            }
+
+            .header-section h1 {
+                font-size: 2rem;
+            }
+
+            .grid {
+                grid-template-columns: 1fr;
+            }
+
+            .filters {
+                justify-content: flex-start;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <!-- PÁGINA DE LOGIN -->
+        <div v-if="!autenticado" class="login-container">
+            <div class="login-card">
+                <div class="login-header">
+                    <i class="fas fa-book"></i>
+                    <h1>Monografias UFVJM</h1>
+                    <p>Sistema de Gerenciamento</p>
+                </div>
+
+                <div v-if="erroLogin" class="alert-box alert-error">
+                    <i class="fas fa-exclamation-circle"></i> {{ erroLogin }}
+                </div>
+
+                <div v-if="sucessoLogin" class="alert-box alert-success">
+                    <i class="fas fa-check-circle"></i> {{ sucessoLogin }}
+                </div>
+
+                <form @submit.prevent="fazerLogin">
+                    <div class="form-group">
+                        <label for="username">
+                            <i class="fas fa-user"></i> Usuário
+                        </label>
+                        <div class="input-wrapper">
+                            <i class="fas fa-user input-icon"></i>
+                            <input 
+                                type="text" 
+                                id="username"
+                                v-model="usuario"
+                                placeholder="Digite seu usuário"
+                                required
+                                autocomplete="username"
+                                :disabled="carregandoLogin"
+                            >
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="password">
+                            <i class="fas fa-lock"></i> Senha
+                        </label>
+                        <div class="input-wrapper">
+                            <i class="fas fa-lock input-icon"></i>
+                            <input 
+                                :type="mostrarSenha ? 'text' : 'password'"
+                                id="password"
+                                v-model="senha"
+                                placeholder="Digite sua senha"
+                                required
+                                autocomplete="current-password"
+                                :disabled="carregandoLogin"
+                            >
+                            <i 
+                                class="fas toggle-password"
+                                :class="mostrarSenha ? 'fa-eye-slash' : 'fa-eye'"
+                                @click="mostrarSenha = !mostrarSenha"
+                            ></i>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn-login" :disabled="carregandoLogin">
+                        <i :class="carregandoLogin ? 'fas fa-spinner fa-spin' : 'fas fa-sign-in-alt'"></i>
+                        {{ carregandoLogin ? 'Autenticando...' : 'Entrar' }}
+                    </button>
+                </form>
+
+                <div style="text-align: center; margin-top: 1.5rem; font-size: 0.9rem; color: #666;">
+                    <p>Não tem conta? <a href="/accounts/signup/" style="color: var(--primary); text-decoration: none; font-weight: 600;">Cadastre-se</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        const { createApp } = Vue;
+
+        createApp({
+            data() {
+                return {
+                    // Login
+                    autenticado: false,
+                    usuario: '',
+                    senha: '',
+                    mostrarSenha: false,
+                    carregandoLogin: false,
+                    erroLogin: null,
+                    sucessoLogin: null,
+                    token: null,
+                    nomeUsuario: '',
+
+                    // Monografias
+                    monografias: [],
+                    carregandoMonos: false,
+                    busca: '',
+                    areaFiltro: '',
+                    areas: [],
+                    pagina: 1,
+                    porPagina: 6,
+                    carregandoBaixada: null,
+
+                    API_URL: 'http://localhost:8000/api'
+                }
+            },
+            computed: {
+                monografiasFiltradas() {
+                    let resultado = this.monografias;
+
+                    if (this.busca) {
+                        const termo = this.busca.toLowerCase();
+                        resultado = resultado.filter(m => 
+                            m.titulo.toLowerCase().includes(termo) ||
+                            m.autor.nome.toLowerCase().includes(termo) ||
+                            m.orientador.nome.toLowerCase().includes(termo) ||
+                            m.palavras_chave.toLowerCase().includes(termo)
+                        );
+                    }
+
+                    if (this.areaFiltro) {
+                        resultado = resultado.filter(m => 
+                            m.orientador.area_pesquisa === this.areaFiltro
+                        );
+                    }
+
+                    return resultado;
+                },
+                totalPages() {
+                    return Math.ceil(this.monografiasFiltradas.length / this.porPagina);
+                },
+                monografiaPaginada() {
+                    const inicio = (this.pagina - 1) * this.porPagina;
+                    const fim = inicio + this.porPagina;
+                    return this.monografiasFiltradas.slice(inicio, fim);
+                }
+            },
+            methods: {
+                async fazerLogin() {
+                    this.erroLogin = null;
+                    this.sucessoLogin = null;
+
+                    if (!this.usuario || !this.senha) {
+                        this.erroLogin = 'Usuário e senha são obrigatórios';
+                        return;
+                    }
+
+                    this.carregandoLogin = true;
+
+                    try {
+                        const response = await fetch(`${this.API_URL}/token/`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({
+                                username: this.usuario,
+                                password: this.senha
+                            })
+                        });
+
+                        const dados = await response.json();
+
+                        if (!response.ok) {
+                            throw new Error(dados.error || 'Erro ao fazer login');
+                        }
+
+                        this.token = dados.token;
+                        this.nomeUsuario = dados.username;
+                        this.sucessoLogin = 'Login realizado com sucesso!';
+
+                        setTimeout(() => {
+                            this.autenticado = true;
+                            this.carregarMonografias();
+                        }, 500);
+
+                    } catch (erro) {
+                        this.erroLogin = erro.message;
+                    } finally {
+                        this.carregandoLogin = false;
+                    }
+                },
+
+                async carregarMonografias() {
+                    this.carregandoMonos = true;
+
+                    try {
+                        const response = await fetch(`${this.API_URL}/monografias/`, {
+                            method: 'GET',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Authorization': `Token ${this.token}`
+                            }
+                        });
+
+                        if (!response.ok) {
+                            throw new Error('Erro ao carregar monografias');
+                        }
+
+                        const dados = await response.json();
+                        this.monografias = dados.results || dados;
+                        this.areas = [...new Set(this.monografias.map(m => m.orientador?.area_pesquisa).filter(Boolean))];
+                        this.areas.sort();
+
+                    } catch (erro) {
+                        console.error('Erro:', erro);
+                    } finally {
+                        this.carregandoMonos = false;
+                    }
+                },
+
+                truncarTexto(texto, limite) {
+                    if (!texto) return '';
+                    return texto.length > limite ? texto.substring(0, limite) + '...' : texto;
+                },
+
+                verDetalhes(monografia) {
+                    alert(`${monografia.titulo}\n\n${monografia.resumo}`);
+                },
+
+                async baixarArquivo(url, titulo) {
+                    if (!url) return;
+                    this.carregandoBaixada = url;
+                    try {
+                        const response = await fetch(url);
+                        const blob = await response.blob();
+                        const link = document.createElement('a');
+                        link.href = window.URL.createObjectURL(blob);
+                        link.download = `${titulo}.pdf`;
+                        link.click();
+                        window.URL.revokeObjectURL(link.href);
+                    } catch (erro) {
+                        console.error('Erro:', erro);
+                    } finally {
+                        this.carregandoBaixada = null;
+                    }
+                },
+
+                logout() {
+                    this.autenticado = false;
+                    this.token = null;
+                    this.usuario = '';
+                    this.senha = '';
+                    this.monografias = [];
+                }
+            },
+            mounted() {
+                // Tenta recuperar sessão anterior
+                const token = localStorage.getItem('monografias_token');
+                const username = localStorage.getItem('monografias_username');
+                
+                if (token && username) {
+                    this.token = token;
+                    this.nomeUsuario = username;
+                    this.autenticado = true;
+                    this.carregarMonografias();
+                }
+            }
+        }).mount('#app');
+    </script>
+</body>
+</html>

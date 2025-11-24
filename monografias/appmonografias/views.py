@@ -189,18 +189,23 @@ def criar_professor(request):
     return render(request, 'criar_professor.html', {'form': form})
 
 # === API VIEWS COM JAVASCRIPT PURO E VUE.JS =====
-def api_login(request):
-    """Página de login para a API (JavaScript puro)"""
-    return render(request, 'api_login.html')
+# def api_login(request):
+#     """Página de login para a API (JavaScript puro)"""
+#     return render(request, 'api_login.html')
 
-def api_dashboard(request):
-    """Dashboard com gráficos (JavaScript puro)"""
-    return render(request, 'api_dashboard.html')
+# def api_dashboard(request):
+#     """Dashboard com gráficos (JavaScript puro)"""
+#     return render(request, 'api_dashboard.html')
+
+
+# def api_dashboard_vue(request):
+#     """Dashboard com gráficos usando Vue.js"""
+#     return render(request, 'api_dashboard_vue.html')
+
+def api_home_vue(request):
+    """Página inicial com Vue.js"""
+    return render(request, 'api_home_vue.html')
 
 def api_login_vue(request):
     """Página de login com Vue.js"""
-    return render(request, 'api_login_vue.html')
-
-def api_dashboard_vue(request):
-    """Dashboard com gráficos usando Vue.js"""
-    return render(request, 'api_dashboard_vue.html')
+    return render(request, 'account/api_login_vue.html')

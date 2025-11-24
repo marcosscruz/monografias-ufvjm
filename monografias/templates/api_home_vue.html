@@ -1,0 +1,807 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Monografias - Sistema UFVJM</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #667eea;
+            --secondary: #764ba2;
+            --success: #28a745;
+            --danger: #dc3545;
+            --warning: #ffc107;
+            --light: #f8f9fa;
+            --dark: #343a40;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+        }
+
+        /* Navbar */
+        .navbar {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .navbar-brand {
+            font-weight: 700;
+            font-size: 1.5rem;
+            color: white !important;
+            letter-spacing: 0.5px;
+        }
+
+        .navbar-brand i {
+            margin-right: 0.5rem;
+            color: #ffc107;
+        }
+
+        .nav-link {
+            color: rgba(255, 255, 255, 0.9) !important;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .nav-link:hover {
+            color: #ffc107 !important;
+            transform: translateY(-2px);
+        }
+
+        .btn-login-nav {
+            background: #ffc107;
+            color: var(--dark) !important;
+            font-weight: 600;
+            border-radius: 25px;
+            padding: 0.5rem 1.5rem !important;
+            transition: all 0.3s ease;
+        }
+
+        .btn-login-nav:hover {
+            background: #ffb300;
+            transform: translateY(-2px);
+        }
+
+        /* Container Principal */
+        .main-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem 1rem;
+        }
+
+        /* Hero Section */
+        .hero {
+            background: white;
+            border-radius: 15px;
+            padding: 3rem 2rem;
+            margin-bottom: 3rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            animation: slideDown 0.6s ease;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .hero h1 {
+            color: var(--dark);
+            font-weight: 700;
+            margin-bottom: 1rem;
+            font-size: 2.5rem;
+        }
+
+        .hero p {
+            color: #666;
+            font-size: 1.1rem;
+            margin-bottom: 0;
+        }
+
+        .hero .subtitle {
+            color: var(--primary);
+            font-weight: 600;
+            font-size: 1rem;
+        }
+
+        /* Barra de Pesquisa */
+        .search-container {
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            margin-bottom: 2rem;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+        }
+
+        .search-box {
+            position: relative;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 0.75rem 1rem 0.75rem 2.5rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .search-box input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+            outline: none;
+        }
+
+        .search-box i {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--primary);
+        }
+
+        /* Filtros */
+        .filters {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            margin-top: 1rem;
+            justify-content: center;
+        }
+
+        .filter-btn {
+            padding: 0.5rem 1rem;
+            border: 2px solid #e0e0e0;
+            background: white;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+            color: #666;
+        }
+
+        .filter-btn.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        .filter-btn:hover {
+            border-color: var(--primary);
+        }
+
+        /* Status Loading */
+        .loading {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 300px;
+            gap: 1rem;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid var(--primary);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Error */
+        .error-alert {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 1rem;
+            border-radius: 10px;
+            border-left: 4px solid var(--danger);
+            margin-bottom: 2rem;
+            animation: slideIn 0.3s ease;
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 3rem 2rem;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+        }
+
+        .empty-state i {
+            font-size: 3rem;
+            color: #ddd;
+            margin-bottom: 1rem;
+        }
+
+        .empty-state h3 {
+            color: #666;
+            margin-bottom: 0.5rem;
+        }
+
+        .empty-state p {
+            color: #999;
+        }
+
+        /* Grid de Monografias */
+        .monografias-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 2rem;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        /* Card de Monografia */
+        .monografia-card {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .monografia-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+        }
+
+        .card-header {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+            padding: 1.5rem;
+            flex-shrink: 0;
+        }
+
+        .card-header h5 {
+            margin: 0;
+            font-weight: 700;
+            font-size: 1.1rem;
+            line-height: 1.4;
+        }
+
+        .card-body {
+            padding: 1.5rem;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .card-meta {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .card-meta i {
+            color: var(--primary);
+            width: 20px;
+        }
+
+        .card-label {
+            font-weight: 600;
+            color: var(--dark);
+            margin-right: 0.5rem;
+        }
+
+        .card-value {
+            color: #666;
+            word-break: break-word;
+        }
+
+        .keywords {
+            margin-top: 1rem;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .keyword-badge {
+            background: #e7f3ff;
+            color: var(--primary);
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        .card-footer {
+            padding: 1.5rem;
+            background: #f8f9fa;
+            border-top: 1px solid #e0e0e0;
+            flex-shrink: 0;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .btn-view {
+            flex: 1;
+            padding: 0.6rem;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            text-align: center;
+        }
+
+        .btn-view:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+        }
+
+        .btn-download {
+            flex: 1;
+            padding: 0.6rem;
+            background: var(--success);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn-download:hover {
+            background: #218838;
+            transform: translateY(-2px);
+        }
+
+        .btn-download:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
+        /* Paginação */
+        .pagination-container {
+            display: flex;
+            justify-content: center;
+            gap: 0.5rem;
+            margin-top: 3rem;
+            flex-wrap: wrap;
+        }
+
+        .pagination-btn {
+            padding: 0.6rem 0.9rem;
+            border: 2px solid #e0e0e0;
+            background: white;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            color: var(--dark);
+        }
+
+        .pagination-btn:hover:not(:disabled) {
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        .pagination-btn.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        .pagination-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .pagination-info {
+            display: flex;
+            align-items: center;
+            color: #666;
+            font-weight: 600;
+        }
+
+        /* Footer */
+        footer {
+            background: var(--dark);
+            color: white;
+            text-align: center;
+            padding: 2rem;
+            margin-top: 4rem;
+        }
+
+        footer p {
+            margin: 0.5rem 0;
+            font-size: 0.95rem;
+        }
+
+        footer small {
+            opacity: 0.8;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2rem;
+            }
+
+            .monografias-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .filters {
+                justify-content: flex-start;
+            }
+
+            .main-container {
+                padding: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <!-- Navbar -->
+        <nav class="navbar navbar-expand-lg navbar-dark">
+            <div class="container-fluid">
+                <a class="navbar-brand" href="/">
+                    <i class="fas fa-book"></i> Monografias UFVJM
+                </a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="navbar-nav ms-auto">
+                        <li class="nav-item">
+                            <a class="nav-link" href="/">
+                                <i class="fas fa-home"></i> Home
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="btn-login-nav" href="/accounts/login/">
+                                <i class="fas fa-sign-in-alt"></i> Login
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <div class="main-container">
+            <!-- Hero -->
+            <div class="hero">
+                <h1>Repositório de Monografias</h1>
+                <p class="subtitle">Sistemas de Informação - UFVJM</p>
+                <p>Consulte as monografias desenvolvidas pelos alunos do curso</p>
+            </div>
+
+            <!-- Error Alert -->
+            <div v-if="erro" class="error-alert">
+                <i class="fas fa-exclamation-circle"></i>
+                {{ erro }}
+            </div>
+
+            <!-- Search e Filtros -->
+            <div class="search-container">
+                <div class="search-box">
+                    <i class="fas fa-search"></i>
+                    <input 
+                        v-model="busca" 
+                        type="text" 
+                        placeholder="Pesquisar por título, autor, orientador ou palavras-chave..."
+                        @input="pagina = 1"
+                    >
+                </div>
+                {% verbatim %}
+                <div class="filters" v-if="areas.length">
+                    <button 
+                        class="filter-btn"
+                        :class="{ active: areaFiltro === '' }"
+                        @click="areaFiltro = ''; pagina = 1"
+                    >
+                        Todas as Áreas
+                    </button>
+                    <button 
+                        v-for="area in areas" 
+                        :key="area"
+                        class="filter-btn"
+                        :class="{ active: areaFiltro === area }"
+                        @click="areaFiltro = area; pagina = 1"
+                    >
+                        {{ area }}
+                    </button>
+                </div>
+                {% endverbatim %}
+            </div>
+
+            <!-- Loading -->
+            <div v-if="carregando" class="loading">
+                <div class="spinner"></div>
+                <span>Carregando monografias...</span>
+            </div>
+
+            <!-- Empty State -->
+            <div v-else-if="monografiasFiltradas.length === 0" class="empty-state">
+                <i class="fas fa-inbox"></i>
+                <h3>Nenhuma monografia encontrada</h3>
+                <p>Tente ajustar seus critérios de busca</p>
+            </div>
+
+            <!-- Grid de Monografias -->
+            <div v-else class="monografias-grid">
+                <div v-for="mono in monografiaPaginada" :key="mono.id" class="monografia-card">
+                    <!-- Header -->
+                    {% verbatim %}
+                    <div class="card-header">
+                        <h5 :title="mono.titulo">{{ truncarTexto(mono.titulo, 60) }}</h5>
+                    </div>
+
+                    <!-- Body -->
+                    <div class="card-body">
+                        <!-- Autor -->
+                        <div class="card-meta">
+                            <i class="fas fa-user"></i>
+                            <span>
+                                <span class="card-label">Autor:</span>
+                                <span class="card-value">{{ mono.autor.nome }}</span>
+                            </span>
+                        </div>
+
+                        <!-- Orientador -->
+                        <div class="card-meta">
+                            <i class="fas fa-chalkboard-user"></i>
+                            <span>
+                                <span class="card-label">Orientador:</span>
+                                <span class="card-value">{{ mono.orientador.nome }}</span>
+                            </span>
+                        </div>
+
+                        <!-- Coorientador -->
+                        <div v-if="mono.coorientador" class="card-meta">
+                            <i class="fas fa-users"></i>
+                            <span>
+                                <span class="card-label">Coorientador:</span>
+                                <span class="card-value">{{ mono.coorientador.nome }}</span>
+                            </span>
+                        </div>
+
+                        <!-- Palavras-chave -->
+                        <div v-if="mono.palavras_chave" class="keywords">
+                            <span v-for="palavra in mono.palavras_chave.split(/[,;]+/)" :key="palavra" class="keyword-badge">
+                                {{ palavra.trim() }}
+                            </span>
+                        </div>
+
+                        <!-- Resumo preview -->
+                        <div style="margin-top: 1rem; color: #666; font-size: 0.9rem; line-height: 1.4;">
+                            {{ truncarTexto(mono.resumo, 100) }}
+                        </div>
+                    </div>
+                    {% endverbatim %}
+
+                    <!-- Footer -->
+                    <div class="card-footer">
+                        <div class="btn-group">
+                            <button class="btn-view" @click="verDetalhes(mono)">
+                                <i class="fas fa-eye"></i> Visualizar
+                            </button>
+                            <button 
+                                v-if="mono.arquivo"
+                                class="btn-download" 
+                                @click="baixarArquivo(mono.arquivo, mono.titulo)"
+                                :disabled="carregandoBaixada === mono.id"
+                            >
+                                <i :class="carregandoBaixada === mono.id ? 'fas fa-spinner fa-spin' : 'fas fa-download'"></i>
+                            </button>
+                            <button v-else class="btn-download" disabled>
+                                <i class="fas fa-ban"></i> Indisponível
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Paginação -->
+            <div v-if="!carregando && totalPages > 1" class="pagination-container">
+                <button 
+                    class="pagination-btn" 
+                    @click="pagina = 1"
+                    :disabled="pagina === 1"
+                >
+                    <i class="fas fa-chevron-left"></i> Primeira
+                </button>
+                <button 
+                    class="pagination-btn" 
+                    @click="pagina--"
+                    :disabled="pagina === 1"
+                >
+                    Anterior
+                </button>
+
+                <div class="pagination-info">
+                    Página {{ pagina }} de {{ totalPages }}
+                </div>
+
+                <button 
+                    class="pagination-btn" 
+                    @click="pagina++"
+                    :disabled="pagina === totalPages"
+                >
+                    Próxima
+                </button>
+                <button 
+                    class="pagination-btn" 
+                    @click="pagina = totalPages"
+                    :disabled="pagina === totalPages"
+                >
+                    Última <i class="fas fa-chevron-right"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <footer>
+            <p>&copy; 2025 Monografias - Curso de Sistemas de Informação UFVJM</p>
+            <small>Desenvolvido por: Gabriel Campolina, João Vitor Oliveira, Marcos Cruz, Robson Junior</small>
+        </footer>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        const { createApp } = Vue;
+
+        createApp({
+            data() {
+                return {
+                    monografias: [],
+                    carregando: true,
+                    erro: null,
+                    busca: '',
+                    areaFiltro: '',
+                    areas: [],
+                    pagina: 1,
+                    porPagina: 6,
+                    carregandoBaixada: null,
+                    API_URL: 'http://localhost:8000/api'
+                }
+            },
+            computed: {
+                monografiasFiltradas() {
+                    let resultado = this.monografias;
+
+                    // Filtro por busca
+                    if (this.busca) {
+                        const termo = this.busca.toLowerCase();
+                        resultado = resultado.filter(m => 
+                            m.titulo.toLowerCase().includes(termo) ||
+                            m.autor.nome.toLowerCase().includes(termo) ||
+                            m.orientador.nome.toLowerCase().includes(termo) ||
+                            m.palavras_chave.toLowerCase().includes(termo) ||
+                            m.resumo.toLowerCase().includes(termo)
+                        );
+                    }
+
+                    // Filtro por área
+                    if (this.areaFiltro) {
+                        resultado = resultado.filter(m => 
+                            m.orientador.area_pesquisa === this.areaFiltro
+                        );
+                    }
+
+                    return resultado;
+                },
+                totalPages() {
+                    return Math.ceil(this.monografiasFiltradas.length / this.porPagina);
+                },
+                monografiaPaginada() {
+                    const inicio = (this.pagina - 1) * this.porPagina;
+                    const fim = inicio + this.porPagina;
+                    return this.monografiasFiltradas.slice(inicio, fim);
+                }
+            },
+            methods: {
+                async carregarMonografias() {
+                    this.carregando = true;
+                    this.erro = null;
+
+                    try {
+                        const response = await fetch(`${this.API_URL}/monografias/`, {
+                            method: 'GET',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            }
+                        });
+
+                        if (!response.ok) {
+                            throw new Error(`Erro ${response.status}: ${response.statusText}`);
+                        }
+
+                        const dados = await response.json();
+                        
+                        // Tratamento para resposta com paginação
+                        this.monografias = dados.results || dados;
+
+                        // Extrai áreas únicas
+                        this.areas = [...new Set(this.monografias.map(m => m.orientador?.area_pesquisa).filter(Boolean))];
+                        this.areas.sort();
+
+                    } catch (erro) {
+                        console.error('Erro ao carregar:', erro);
+                        this.erro = `Erro ao carregar monografias: ${erro.message}. Verifique se o servidor está rodando em ${this.API_URL}`;
+                    } finally {
+                        this.carregando = false;
+                    }
+                },
+
+                truncarTexto(texto, limite) {
+                    if (!texto) return '';
+                    return texto.length > limite ? texto.substring(0, limite) + '...' : texto;
+                },
+
+                verDetalhes(monografia) {
+                    // Aqui você pode abrir um modal ou ir para uma página de detalhes
+                    console.log('Ver detalhes:', monografia);
+                    alert(`Monografia: ${monografia.titulo}\n\nResumo:\n${monografia.resumo}`);
+                },
+
+                async baixarArquivo(url, titulo) {
+                    if (!url) return;
+
+                    this.carregandoBaixada = url;
+                    try {
+                        const response = await fetch(url);
+                        const blob = await response.blob();
+                        const link = document.createElement('a');
+                        link.href = window.URL.createObjectURL(blob);
+                        link.download = `${titulo}.pdf`;
+                        link.click();
+                        window.URL.revokeObjectURL(link.href);
+                    } catch (erro) {
+                        console.error('Erro ao baixar:', erro);
+                        this.erro = 'Erro ao baixar o arquivo';
+                    } finally {
+                        this.carregandoBaixada = null;
+                    }
+                }
+            },
+            mounted() {
+                this.carregarMonografias();
+            }
+        }).mount('#app');
+    </script>
+</body>
+</html>
